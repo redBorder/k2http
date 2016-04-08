@@ -1,0 +1,46 @@
+before_script:
+  - export GOPATH=/golang
+  - export PATH=$PATH:$GOPATH/bin
+  - mkdir -p /golang/src/redborder/k2http2/
+  - mv * /golang/src/redborder/k2http2/
+  - cd /golang/src/redborder/k2http2/
+
+stages:
+  - check
+  - build
+  - test
+
+check-go-1.5:
+  image: golang:1.5
+  stage: check
+  only:
+    - master
+  script:
+    - make get
+    - make get_dev
+    - make fmt
+    - make vet
+    - make errcheck
+  allow_failure: true
+
+build-go-1.5:
+  image: golang:1.5
+  stage: build
+  only:
+    - master
+    - develop
+  script:
+    - make get
+    - make
+
+test-go-1.5:
+  image: golang:1.5
+  stage: test
+  only:
+    - master
+    - develop
+  script:
+    - make get
+    - make get_dev
+    - make test
+    - make cover
