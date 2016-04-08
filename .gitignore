@@ -1,0 +1,7 @@
+rb_forwarder
+*.out
+*.coverprofile
+*.sublime-project
+*.sublime-workspace
+*.a
+*.h
