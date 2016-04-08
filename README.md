@@ -5,8 +5,6 @@ endpoint using [rbforwarder](https://github.com/redBorder/rbforwarder) package a
 
 ## Example config file
 
-This is an example config file for a MQTT to HTTP with json decoding/encoding:
-
 ```yaml
 backend:
   workers: 10
