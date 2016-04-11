@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/Shopify/sarama"
 	"github.com/redBorder/rbforwarder"
 	"github.com/wvanbergen/kafka/consumergroup"
@@ -87,7 +89,7 @@ func (k *KafkaConsumer) Start() {
 		}
 	}
 
-	logger.Info("Consumer group terminated")
+	logger.Info("Consumer terminated")
 
 	return
 }
