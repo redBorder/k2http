@@ -122,6 +122,7 @@ func main() {
 	// Wait for ctrl-c to close the consumer
 	go func() {
 		<-ctrlc
+		forwarder.Close()
 		kafka.Close()
 	}()
 
