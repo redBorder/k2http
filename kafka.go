@@ -106,6 +106,8 @@ func (k *KafkaConsumer) ParseKafkaConfig(config map[string]interface{}) {
 	// Create the config
 	k.Config.consumerGroupConfig = consumergroup.NewConfig()
 
+	k.Config.consumerGroupConfig.Offsets.ProcessingTimeout = 5 * time.Second
+
 	// Parse the brokers addresses
 	if val, ok := config["begining"].(bool); ok {
 		k.Config.consumerGroupConfig.Offsets.ResetOffsets = val
