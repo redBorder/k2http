@@ -10,18 +10,20 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/redBorder/rbforwarder"
 	"github.com/redBorder/rbforwarder/senders/httpsender"
+	"github.com/x-cray/logrus-prefixed-formatter"
 )
 
 const (
 	defaultQueueSize = 10000
 	defaultWorkers   = 1
 	defaultRetries   = 0
+	defaultBackoff   = 2
 )
 
 var (
 	configFile *string
 	debug      *bool
-	logger     *logrus.Logger
+	logger     *logrus.Entry
 )
 
 func init() {
@@ -36,7 +38,12 @@ func init() {
 		os.Exit(1)
 	}
 
-	logger = logrus.New()
+	log := logrus.New()
+	log.Formatter = new(prefixed.TextFormatter)
+
+	logger = log.WithFields(logrus.Fields{
+		"prefix": "k2http",
+	})
 }
 
 func main() {
@@ -78,6 +85,11 @@ func main() {
 		rbForwarderConfig.QueueSize = queue
 	} else {
 		rbForwarderConfig.QueueSize = defaultQueueSize
+	}
+
+	// Show debug info
+	if *debug {
+		rbForwarderConfig.Debug = true
 	}
 
 	// Get the interval to show message rate
