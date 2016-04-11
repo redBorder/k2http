@@ -73,7 +73,6 @@ func (k *KafkaConsumer) Start() {
 	for message := range k.consumerGroup.Messages() {
 		msg, err := k.backend.TakeMessage()
 		if err != nil {
-			logger.Error("Error on TakeMessage(): ", err)
 			break
 		}
 
