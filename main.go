@@ -80,6 +80,13 @@ func main() {
 		rbForwarderConfig.Retries = defaultRetries
 	}
 
+	// Time to wait between retries
+	if backoff, ok := configData.Backend["backoff"].(int); ok {
+		rbForwarderConfig.Backoff = backoff
+	} else {
+		rbForwarderConfig.Backoff = defaultBackoff
+	}
+
 	// Get queue size
 	if queue, ok := configData.Backend["queue"].(int); ok {
 		rbForwarderConfig.QueueSize = queue
