@@ -1,0 +1,17 @@
+backend:
+  workers: 1
+  queue: 100
+  retries: 3
+  backoff: 5
+  showcounter: 5
+kafka:
+  # begining: true
+  broker: "localhost:2181"
+  consumergroup: "k2httpd"
+  topics:
+    - prueba
+http:
+  url: "http://localhost:8080"
+  batchsize: 100
+  batchtimeout: 500
+  deflate: true
