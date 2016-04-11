@@ -100,8 +100,14 @@ func main() {
 	// Start the backend
 	forwarder.Start()
 
-	// Wait for ctrl-c
-	<-ctrlc
+	// Wait for ctrl-c to close the consumer
+	go func() {
+		<-ctrlc
+		kafka.Close()
+	}()
+
+	// Start getting messages
+	kafka.Start()
 
 	defer recoverPanic()
 }
