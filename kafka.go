@@ -68,28 +68,26 @@ func (k *KafkaConsumer) Start() {
 	}()
 
 	// Start consuming messages
-	go func() {
-		for message := range k.consumerGroup.Messages() {
-			msg, err := k.backend.TakeMessage()
-			if err != nil {
-				logger.Error("Error on TakeMessage(): ", err)
-				break
-			}
-
-			if _, err := msg.InputBuffer.Write(message.Value); err != nil {
-				logger.Error(err)
-			}
-
-			msg.Metadata["sarama_message"] = message
-			msg.Metadata["topic"] = message.Topic
-			if err := msg.Produce(); err != nil {
-				logger.Error("Error on Produce(): ", err)
-				break
-			}
+	for message := range k.consumerGroup.Messages() {
+		msg, err := k.backend.TakeMessage()
+		if err != nil {
+			logger.Error("Error on TakeMessage(): ", err)
+			break
 		}
 
-		logger.Print("Consumer group terminated")
-	}()
+		if _, err := msg.InputBuffer.Write(message.Value); err != nil {
+			logger.Error(err)
+		}
+
+		msg.Metadata["sarama_message"] = message
+		msg.Metadata["topic"] = message.Topic
+		if err := msg.Produce(); err != nil {
+			logger.Error("Error on Produce(): ", err)
+			break
+		}
+	}
+
+	logger.Info("Consumer group terminated")
 
 	return
 }
