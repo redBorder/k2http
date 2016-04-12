@@ -94,6 +94,16 @@ func main() {
 		rbForwarderConfig.QueueSize = defaultQueueSize
 	}
 
+	// Get max message rate
+	if maxMessages, ok := configData.Backend["max_messages"].(int); ok {
+		rbForwarderConfig.MaxMessages = maxMessages
+	}
+
+	// Get max bytes rate
+	if maxBytes, ok := configData.Backend["max_bytes"].(int); ok {
+		rbForwarderConfig.MaxBytes = maxBytes
+	}
+
 	// Show debug info
 	if *debug {
 		rbForwarderConfig.Debug = true
