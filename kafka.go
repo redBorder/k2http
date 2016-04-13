@@ -46,27 +46,43 @@ func (k *KafkaConsumer) Start() {
 		}
 	}()
 
+	var offset uint64
+	var eventsReported uint64
+	var eventsSent uint64
+
 	// Start processing reports
+	done := make(chan struct{})
 	go func() {
 		for report := range k.backend.GetOrderedReports() {
-			if report.StatusCode > 0 {
+			message := report.Metadata["sarama_message"].(*sarama.ConsumerMessage)
+
+			if offset != report.ID {
+				logger.Fatalf("Unexpected offset. Expected %d, found %d.",
+					offset, report.ID)
+			}
+
+			if report.StatusCode != 0 {
 				logger.
 					WithField("ID", report.ID).
 					WithField("STATUS", report.Status).
+					WithField("OFFSET", message.Offset).
 					Errorf("REPORT")
 			} else {
 				logger.
 					WithField("ID", report.ID).
 					WithField("STATUS", report.Status).
+					WithField("OFFSET", message.Offset).
 					Debugf("REPORT")
 			}
 
-			message := report.Metadata["sarama_message"].(*sarama.ConsumerMessage)
-
 			if err := k.consumerGroup.CommitUpto(message); err != nil {
-				logger.Error(err)
+				logger.Fatal(err)
 			}
+			offset++
+			eventsReported++
 		}
+
+		done <- struct{}{}
 	}()
 
 	// Start consuming messages
@@ -83,12 +99,17 @@ func (k *KafkaConsumer) Start() {
 		msg.Metadata["sarama_message"] = message
 		msg.Metadata["topic"] = message.Topic
 		if err := msg.Produce(); err != nil {
-			logger.Error("Error on Produce(): ", err)
 			break
 		}
+
+		eventsSent++
 	}
 
 	logger.Info("Consumer terminated")
+
+	<-done
+	logger.Infof("TOTAL SENT MESSAGES: %d", eventsSent)
+	logger.Infof("TOTAL REPORTS: %d", eventsReported)
 
 	return
 }
