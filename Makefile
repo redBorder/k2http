@@ -10,12 +10,11 @@ bindir?=	$(prefix)/bin
 
 build:
 	@printf "$(MKL_YELLOW)Building $(BIN)$(MKL_CLR_RESET)\n"
-	go build -o $(BIN)
+	go build -ldflags "-X main.githash=`git rev-parse HEAD` -X main.version=`git rev-parse --abbrev-ref HEAD`" -o $(BIN)
 
-install:
+install: build
 	@printf "$(MKL_YELLOW)Install $(BIN) to $(bindir)$(MKL_CLR_RESET)\n"
-	go install
-	install $(GOPATH)/bin/$(BIN) $(bindir)
+	install $(BIN) $(bindir)
 
 uninstall:
 	@printf "$(MKL_RED)Uninstall $(BIN) from $(bindir)$(MKL_CLR_RESET)\n"
