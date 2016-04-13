@@ -52,79 +52,26 @@ func init() {
 
 func main() {
 
-	// Load the configuration from file
-	configData, err := LoadConfigFile(*configFile)
+	// Load configuration from file
+	rbForwarderConfig, kafkaConfig, HTTPConfig, err := LoadConfigFile(*configFile)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	logger.Debug("Showing debug info")
-
 	// Capture ctrl-c
 	ctrlc := make(chan os.Signal, 1)
 	signal.Notify(ctrlc, os.Interrupt)
-
-	// Parse the backend configuration
-	rbForwarderConfig := rbforwarder.Config{}
-
-	// Get number of workers
-	if workers, ok := configData.Backend["workers"].(int); ok {
-		rbForwarderConfig.Workers = workers
-	} else {
-		rbForwarderConfig.Workers = defaultWorkers
-	}
-
-	// Get number of retries per message
-	if retries, ok := configData.Backend["retries"].(int); ok {
-		rbForwarderConfig.Retries = retries
-	} else {
-		rbForwarderConfig.Retries = defaultRetries
-	}
-
-	// Time to wait between retries
-	if backoff, ok := configData.Backend["backoff"].(int); ok {
-		rbForwarderConfig.Backoff = backoff
-	} else {
-		rbForwarderConfig.Backoff = defaultBackoff
-	}
-
-	// Get queue size
-	if queue, ok := configData.Backend["queue"].(int); ok {
-		rbForwarderConfig.QueueSize = queue
-	} else {
-		rbForwarderConfig.QueueSize = defaultQueueSize
-	}
-
-	// Get max message rate
-	if maxMessages, ok := configData.Backend["max_messages"].(int); ok {
-		rbForwarderConfig.MaxMessages = maxMessages
-	}
-
-	// Get max bytes rate
-	if maxBytes, ok := configData.Backend["max_bytes"].(int); ok {
-		rbForwarderConfig.MaxBytes = maxBytes
-	}
-
-	// Show debug info
-	if *debug {
-		rbForwarderConfig.Debug = true
-	}
-
-	// Get the interval to show message rate
-	if interval, ok := configData.Backend["showcounter"].(int); ok {
-		rbForwarderConfig.ShowCounter = interval
-	}
 
 	// Create forwarder
 	forwarder := rbforwarder.NewRBForwarder(rbForwarderConfig)
 
 	// Initialize kafka
 	kafka := new(KafkaConsumer)
-	kafka.ParseKafkaConfig(configData.Kafka)
+	kafka.ParseKafkaConfig(kafkaConfig)
 	kafka.backend = forwarder
 
 	// Get the HTTP sender helper
-	httpSenderHelper := httpsender.NewHelper(configData.HTTP)
+	httpSenderHelper := httpsender.NewHelper(HTTPConfig)
 	forwarder.SetSenderHelper(httpSenderHelper)
 
 	// Start the backend
