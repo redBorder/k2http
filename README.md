@@ -11,7 +11,7 @@ To install this application.
 1. Clone this repo and cd to the project
 
     ```bash
-    git clone git@gitlab.redborder.lan:core-developers/k2http2.git`
+    git clone git@gitlab.redborder.lan:core-developers/k2http2.git
     cd k2http2
     ```
 2. Install dependencies
