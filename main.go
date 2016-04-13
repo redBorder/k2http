@@ -39,6 +39,10 @@ func init() {
 	}
 
 	log := logrus.New()
+	// Show debug info if required
+	if *debug {
+		log.Level = logrus.DebugLevel
+	}
 	log.Formatter = new(prefixed.TextFormatter)
 
 	logger = log.WithFields(logrus.Fields{
@@ -54,10 +58,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	// Show debug info if required
-	if *debug {
-		logger.Level = logrus.DebugLevel
-	}
+	logger.Debug("Showing debug info")
 
 	// Capture ctrl-c
 	ctrlc := make(chan os.Signal, 1)
