@@ -23,10 +23,6 @@ uninstall:
 fmt:
 	@if [ -n "$$(go fmt)" ]; then echo 'Please run go fmt on your code.' && exit 1; fi
 
-errcheck:
-	@printf "$(MKL_YELLOW)Checking errors$(MKL_CLR_RESET)\n"
-	errcheck -ignoretests -verbose
-
 vet:
 	@printf "$(MKL_YELLOW)Runing go vet$(MKL_CLR_RESET)\n"
 	go vet
@@ -41,6 +37,12 @@ coverage:
 	@overalls -covermode=set -project=k2http2
 	@go tool cover -func overalls.coverprofile
 	@rm -f overalls.coverprofile
+
+get_dev:
+	@printf "$(MKL_YELLOW)Installing deps$(MKL_CLR_RESET)\n"
+	go get golang.org/x/tools/cmd/cover
+	go get github.com/axw/gocov/gocov
+	go get github.com/go-playground/overalls
 
 get:
 	@printf "$(MKL_YELLOW)Installing deps$(MKL_CLR_RESET)\n"
