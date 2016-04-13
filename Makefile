@@ -32,12 +32,6 @@ test:
 	go test -cover
 	@printf "$(MKL_GREEN)Test passed$(MKL_CLR_RESET)\n"
 
-coverage:
-	@printf "$(MKL_YELLOW)Computing coverage$(MKL_CLR_RESET)\n"
-	@overalls -covermode=set -project=k2http2
-	@go tool cover -func overalls.coverprofile
-	@rm -f overalls.coverprofile
-
 get_dev:
 	@printf "$(MKL_YELLOW)Installing deps$(MKL_CLR_RESET)\n"
 	go get golang.org/x/tools/cmd/cover
