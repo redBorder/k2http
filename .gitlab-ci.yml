@@ -24,6 +24,5 @@ test-go-1.5:
     - develop
   script:
     - make get
-    - make get_dev
     - make test
     - make coverage
