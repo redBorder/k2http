@@ -8,16 +8,16 @@ package as backend.
 
 To install this application.
 
-1. Go to `GOPATH/src/redborder/`
-2. Clone this repo
+1. Clone this repo and cd to the project
   ```bash
   git clone git@gitlab.redborder.lan:core-developers/k2http2.git`
+  cd k2http2
   ```
-3. Install dependencies
+2. Install dependencies
   ```bash
   make get
   ```
-4. Install on desired directory
+3. Install on desired directory
   ```bash
   prefix=/opt/rb make install
   ```
