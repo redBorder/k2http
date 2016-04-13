@@ -4,6 +4,42 @@ k2http is a application that forwards messages from kafka to an  HTTP
 endpoint using [rbforwarder](https://github.com/redBorder/rbforwarder)
 package as backend.
 
+## Installing
+
+To install this application.
+
+1. Go to `GOPATH/src/redborder/`
+2. Clone this repo
+  ```bash
+  git clone git@gitlab.redborder.lan:core-developers/k2http2.git`
+  ```
+3. Install dependencies
+  ```bash
+  make get
+  ```
+4. Install on desired directory
+  ```bash
+  prefix=/opt/rb make install
+  ```
+
+## Usage
+
+```
+Usage of k2http:
+  -config string
+        Config file
+  -debug
+        Show debug info
+  -version
+        Print version info
+```
+
+To run `k2http` just execute the following command:
+
+```bash
+k2http --config path/to/config/file
+```
+
 ## Example config file
 
 ```yaml

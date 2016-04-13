@@ -38,7 +38,7 @@ test:
 
 coverage:
 	@printf "$(MKL_YELLOW)Computing coverage$(MKL_CLR_RESET)\n"
-	@overalls -covermode=set -project=redborder/k2http2
+	@overalls -covermode=set -project=k2http2
 	@go tool cover -func overalls.coverprofile
 	@rm -f overalls.coverprofile
 
