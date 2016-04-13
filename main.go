@@ -24,13 +24,24 @@ var (
 	configFile *string
 	debug      *bool
 	logger     *logrus.Entry
+
+	githash string
+	version string
 )
 
 func init() {
 	configFile = flag.String("config", "", "Config file")
 	debug = flag.Bool("debug", false, "Show debug info")
+	versionFlag := flag.Bool("version", false, "Print version info")
 
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Println("K2HTTP VERSION:\t\t", version)
+		fmt.Println("KHTTP COMMIT:\t\t", githash)
+		fmt.Println("RBFORWARDER VERSION:\t", rbforwarder.Version)
+		os.Exit(0)
+	}
 
 	if len(*configFile) == 0 {
 		fmt.Println("No config file provided")
