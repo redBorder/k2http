@@ -46,7 +46,7 @@ func init() {
 	if len(*configFile) == 0 {
 		fmt.Println("No config file provided")
 		flag.Usage()
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	log := logrus.New()
