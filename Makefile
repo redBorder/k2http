@@ -53,4 +53,4 @@ get_dev:
 
 get:
 	@printf "$(MKL_YELLOW)Installing deps$(MKL_CLR_RESET)\n"
-	go get -t
+	go get -t -v
