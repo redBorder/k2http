@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
@@ -59,6 +60,12 @@ func init() {
 	logger = log.WithFields(logrus.Fields{
 		"prefix": "k2http",
 	})
+
+	if *debug {
+		go func() {
+			log.Infoln(http.ListenAndServe("localhost:6060", nil))
+		}()
+	}
 }
 
 func main() {
