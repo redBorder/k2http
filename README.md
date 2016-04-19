@@ -52,11 +52,11 @@ backend:
   retries: -1             # Number of retries on fail (-1 not limited)
   backoff: 30             # Time to wait between retries in seconds             
   max_messages: 6000      # Max messages per second
-  max_bytes: 5242880      # Max bytes per second
+  #max_bytes: 5242880     # Max bytes per second
   showcounter: 60         # Time in secods to show message ratio
 
 kafka:
-  broker: "127.0.0.1:2181"  # Zookeeper broker
+  broker: "127.0.0.1:9092"  # Kafka brokers
   consumergroup: "k2http"   # Consumer group ID   
   begining: false           # Reset offset
   topics:                   # Kafka topics to listen
