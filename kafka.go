@@ -51,12 +51,6 @@ func (k *KafkaConsumer) Start() {
 					WithField("STATUS", report.Status).
 					WithField("OFFSET", message.Offset).
 					Errorf("REPORT")
-			} else {
-				logger.
-					WithField("ID", report.ID).
-					WithField("STATUS", report.Status).
-					WithField("OFFSET", message.Offset).
-					Debugf("REPORT")
 			}
 
 			k.consumer.MarkOffset(message, "")
