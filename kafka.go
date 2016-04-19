@@ -1,19 +1,19 @@
 package main
 
 import (
+	"strings"
 	"time"
 
-	"github.com/Shopify/sarama"
 	"github.com/redBorder/rbforwarder"
-	"github.com/wvanbergen/kafka/consumergroup"
-	"github.com/wvanbergen/kazoo-go"
+	"gopkg.in/Shopify/sarama.v1"
+	"gopkg.in/bsm/sarama-cluster.v2"
 )
 
 // KafkaConsumer get messages from multiple kafka topics
 type KafkaConsumer struct {
-	backend       *rbforwarder.RBForwarder     // The backend to send messages
-	consumerGroup *consumergroup.ConsumerGroup // The main kafka consumer
-	Config        KafkaConfig                  // Cofiguration after the parsing
+	backend  *rbforwarder.RBForwarder // The backend to send messages
+	consumer *cluster.Consumer
+	Config   KafkaConfig // Cofiguration after the parsing
 }
 
 // KafkaConfig stores the configuration for the Kafka source
@@ -21,30 +21,23 @@ type KafkaConfig struct {
 	topics              []string // Topics where listen for messages
 	brokers             []string // Brokers to connect
 	consumergroup       string   // ID for the consumer
-	consumerGroupConfig *consumergroup.Config
+	consumerGroupConfig *cluster.Config
 }
 
 // Start starts reading messages from kafka and pushing them to the pipeline
 func (k *KafkaConsumer) Start() {
 	var err error
 
-	// Join the consumer group
-	k.consumerGroup, err = consumergroup.JoinConsumerGroup(
+	// Init consumer, consume errors & messages
+	k.consumer, err = cluster.NewConsumer(
+		k.Config.brokers,
 		k.Config.consumergroup,
 		k.Config.topics,
-		k.Config.brokers,
 		k.Config.consumerGroupConfig,
 	)
 	if err != nil {
-		logger.Fatal(err)
+		logger.Fatal("Failed to start consumer: ", err)
 	}
-
-	// Check for errors
-	go func() {
-		for err := range k.consumerGroup.Errors() {
-			logger.Error(err)
-		}
-	}()
 
 	var offset uint64
 	var eventsReported uint64
@@ -75,9 +68,7 @@ func (k *KafkaConsumer) Start() {
 					Debugf("REPORT")
 			}
 
-			if err := k.consumerGroup.CommitUpto(message); err != nil {
-				logger.Fatal(err)
-			}
+			k.consumer.MarkOffset(message, "")
 			offset++
 			eventsReported++
 		}
@@ -86,14 +77,14 @@ func (k *KafkaConsumer) Start() {
 	}()
 
 	// Start consuming messages
-	for message := range k.consumerGroup.Messages() {
+	for message := range k.consumer.Messages() {
 		msg, err := k.backend.TakeMessage()
 		if err != nil {
 			break
 		}
 
 		if _, err := msg.InputBuffer.Write(message.Value); err != nil {
-			logger.Error(err)
+			logger.Error("Error writing buffer: ", err)
 		}
 
 		msg.Metadata["sarama_message"] = message
@@ -116,8 +107,8 @@ func (k *KafkaConsumer) Start() {
 
 // Close closes the connection with Kafka
 func (k *KafkaConsumer) Close() {
-	if err := k.consumerGroup.Close(); err != nil {
-		logger.Errorf("Error closing the consumer: %s", err)
+	if err := k.consumer.Close(); err != nil {
+		logger.Println("Failed to close consumer: ", err)
 	}
 }
 
@@ -126,19 +117,16 @@ func (k *KafkaConsumer) Close() {
 func (k *KafkaConsumer) ParseKafkaConfig(config map[string]interface{}) {
 
 	// Create the config
-	k.Config.consumerGroupConfig = consumergroup.NewConfig()
+	k.Config.consumerGroupConfig = cluster.NewConfig()
+	k.Config.consumerGroupConfig.Config.Consumer.Offsets.CommitInterval = 1 * time.Second
+	k.Config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
+	k.Config.consumerGroupConfig.Consumer.MaxProcessingTime = 3 * time.Second
 
-	k.Config.consumerGroupConfig.Offsets.ProcessingTimeout = 1 * time.Second
-
-	// Parse the brokers addresses
-	if val, ok := config["begining"].(bool); ok {
-		k.Config.consumerGroupConfig.Offsets.ResetOffsets = val
-	}
+	sarama.Logger = logger
 
 	// Parse the brokers addresses
 	if config["broker"] != nil {
-		k.Config.brokers, k.Config.consumerGroupConfig.Zookeeper.Chroot =
-			kazoo.ParseConnectionString(config["broker"].(string))
+		k.Config.brokers = strings.Split(config["broker"].(string), ",")
 	}
 
 	// Parse topics
