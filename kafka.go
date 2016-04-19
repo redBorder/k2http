@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 type KafkaConsumer struct {
 	backend  *rbforwarder.RBForwarder // The backend to send messages
 	consumer *cluster.Consumer
+	closed   bool
 	Config   KafkaConfig // Cofiguration after the parsing
 }
 
@@ -27,17 +29,6 @@ type KafkaConfig struct {
 // Start starts reading messages from kafka and pushing them to the pipeline
 func (k *KafkaConsumer) Start() {
 	var err error
-
-	// Init consumer, consume errors & messages
-	k.consumer, err = cluster.NewConsumer(
-		k.Config.brokers,
-		k.Config.consumergroup,
-		k.Config.topics,
-		k.Config.consumerGroupConfig,
-	)
-	if err != nil {
-		logger.Fatal("Failed to start consumer: ", err)
-	}
 
 	var offset uint64
 	var eventsReported uint64
@@ -76,24 +67,48 @@ func (k *KafkaConsumer) Start() {
 		done <- struct{}{}
 	}()
 
-	// Start consuming messages
-	for message := range k.consumer.Messages() {
-		msg, err := k.backend.TakeMessage()
+	// Init consumer, consume errors & messages
+mainLoop:
+	for {
+		k.consumer, err = cluster.NewConsumer(
+			k.Config.brokers,
+			k.Config.consumergroup,
+			k.Config.topics,
+			k.Config.consumerGroupConfig,
+		)
 		if err != nil {
+			logger.Fatal("Failed to start consumer: ", err)
 			break
 		}
 
-		if _, err := msg.InputBuffer.Write(message.Value); err != nil {
-			logger.Error("Error writing buffer: ", err)
+		// Start consuming messages
+		for message := range k.consumer.Messages() {
+			if message == nil {
+				k.Config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
+				if err := k.consumer.Close(); err != nil {
+					logger.Error("Failed to close consumer: ", err)
+				}
+				break
+			}
+
+			msg, err := k.backend.TakeMessage()
+			if err != nil {
+				break mainLoop
+			}
+
+			msg.InputBuffer = bytes.NewBuffer(message.Value)
+			msg.Metadata["sarama_message"] = message
+			msg.Metadata["topic"] = message.Topic
+			if err := msg.Produce(); err != nil {
+				break mainLoop
+			}
+
+			eventsSent++
 		}
 
-		msg.Metadata["sarama_message"] = message
-		msg.Metadata["topic"] = message.Topic
-		if err := msg.Produce(); err != nil {
+		if k.closed {
 			break
 		}
-
-		eventsSent++
 	}
 
 	logger.Info("Consumer terminated")
@@ -107,6 +122,7 @@ func (k *KafkaConsumer) Start() {
 
 // Close closes the connection with Kafka
 func (k *KafkaConsumer) Close() {
+	k.closed = true
 	if err := k.consumer.Close(); err != nil {
 		logger.Println("Failed to close consumer: ", err)
 	}
