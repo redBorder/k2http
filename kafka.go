@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/redBorder/rbforwarder"
 	"gopkg.in/Shopify/sarama.v1"
 	"gopkg.in/bsm/sarama-cluster.v2"
@@ -33,6 +34,10 @@ func (k *KafkaConsumer) Start() {
 	var offset uint64
 	var eventsReported uint64
 	var eventsSent uint64
+
+	logger = Logger.WithFields(logrus.Fields{
+		"prefix": "k2http",
+	})
 
 	// Start processing reports
 	done := make(chan struct{})
@@ -74,6 +79,12 @@ mainLoop:
 			logger.Fatal("Failed to start consumer: ", err)
 			break
 		}
+
+		logger.
+			WithField("brokers", k.Config.brokers).
+			WithField("consumergroup", k.Config.consumergroup).
+			WithField("topics", k.Config.topics).
+			Info("Started consumer")
 
 		// Start consuming messages
 		for message := range k.consumer.Messages() {
@@ -132,7 +143,10 @@ func (k *KafkaConsumer) ParseKafkaConfig(config map[string]interface{}) {
 	k.Config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
 	k.Config.consumerGroupConfig.Consumer.MaxProcessingTime = 3 * time.Second
 
-	sarama.Logger = logger
+	if *debug {
+		saramaLogger := Logger.WithField("prefix", "kafka-consumer")
+		sarama.Logger = saramaLogger
+	}
 
 	// Parse the brokers addresses
 	if config["broker"] != nil {
