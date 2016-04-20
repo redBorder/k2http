@@ -21,12 +21,14 @@ const (
 	defaultBackoff   = 2
 )
 
+// Logger is the main logger object
+var Logger = logrus.New()
+var logger *logrus.Entry
+
 var (
 	configFile *string
 	debug      *bool
-	logger     *logrus.Entry
-
-	version string
+	version    string
 )
 
 func init() {
@@ -48,25 +50,27 @@ func init() {
 		os.Exit(0)
 	}
 
-	log := logrus.New()
+	Logger.Formatter = new(prefixed.TextFormatter)
+
 	// Show debug info if required
 	if *debug {
-		log.Level = logrus.DebugLevel
+		Logger.Level = logrus.DebugLevel
 	}
-	log.Formatter = new(prefixed.TextFormatter)
-
-	logger = log.WithFields(logrus.Fields{
-		"prefix": "k2http",
-	})
 
 	if *debug {
 		go func() {
-			log.Infoln(http.ListenAndServe("localhost:6060", nil))
+			Logger.Debugln(http.ListenAndServe("localhost:6060", nil))
 		}()
 	}
+
+	rbforwarder.Logger = Logger.WithField("prefix", "backend")
+	httpsender.Logger = Logger.WithField("prefix", "http-sender")
 }
 
 func main() {
+	logger = Logger.WithFields(logrus.Fields{
+		"prefix": "k2http",
+	})
 
 	// Load configuration from file
 	rbForwarderConfig, kafkaConfig, HTTPConfig, err := LoadConfigFile(*configFile)

@@ -77,11 +77,6 @@ func LoadConfigFile(fileName string) (rbForwarderConfig rbforwarder.Config,
 		rbForwarderConfig.ShowCounter = interval
 	}
 
-	// Show debug info
-	if *debug {
-		rbForwarderConfig.Debug = true
-	}
-
 	return
 }
 
