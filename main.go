@@ -26,7 +26,6 @@ var (
 	debug      *bool
 	logger     *logrus.Entry
 
-	githash string
 	version string
 )
 
@@ -39,7 +38,6 @@ func init() {
 
 	if *versionFlag {
 		fmt.Println("K2HTTP VERSION:\t\t", version)
-		fmt.Println("KHTTP COMMIT:\t\t", githash)
 		fmt.Println("RBFORWARDER VERSION:\t", rbforwarder.Version)
 		os.Exit(0)
 	}
