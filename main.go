@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
@@ -25,7 +26,6 @@ var (
 	debug      *bool
 	logger     *logrus.Entry
 
-	githash string
 	version string
 )
 
@@ -38,7 +38,6 @@ func init() {
 
 	if *versionFlag {
 		fmt.Println("K2HTTP VERSION:\t\t", version)
-		fmt.Println("KHTTP COMMIT:\t\t", githash)
 		fmt.Println("RBFORWARDER VERSION:\t", rbforwarder.Version)
 		os.Exit(0)
 	}
@@ -59,6 +58,12 @@ func init() {
 	logger = log.WithFields(logrus.Fields{
 		"prefix": "k2http",
 	})
+
+	if *debug {
+		go func() {
+			log.Infoln(http.ListenAndServe("localhost:6060", nil))
+		}()
+	}
 }
 
 func main() {
