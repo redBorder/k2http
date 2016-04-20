@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"github.com/Sirupsen/logrus"
 	"github.com/redBorder/rbforwarder"
-	"gopkg.in/Shopify/sarama.v1"
 	"gopkg.in/bsm/sarama-cluster.v2"
 )
 
