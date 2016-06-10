@@ -1,0 +1,19 @@
+sudo: required
+
+language: go
+
+go: 
+  - 1.6.2
+
+services:
+  - docker
+
+install:
+  - make get
+  - make get_dev
+  - make
+
+script :
+  - make fmt
+  - make vet
+  - make test
