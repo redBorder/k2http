@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/redBorder/k2http.svg?branch=develop)](https://travis-ci.org/redBorder/k2http)
+
 # K2HTTP2
 
 k2http is a application that forwards messages from kafka to an  HTTP
