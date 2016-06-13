@@ -1,0 +1,40 @@
+hash: f59282f57715397bd854b5e4182551dd2bd3d08cfc1f89e07bb03a12e78e0216
+updated: 2016-06-13T13:32:14.840562804+02:00
+imports:
+- name: github.com/davecgh/go-spew
+  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+  subpackages:
+  - spew
+- name: github.com/eapache/go-resiliency
+  version: b86b1ec0dd4209a588dc1285cdd471e73525c0b3
+  subpackages:
+  - breaker
+- name: github.com/eapache/go-xerial-snappy
+  version: bb955e01b9346ac19dc29eb16586c90ded99a98c
+- name: github.com/eapache/queue
+  version: ded5959c0d4e360646dc9e9908cff48666781367
+- name: github.com/golang/snappy
+  version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
+- name: github.com/klauspost/crc32
+  version: 19b0b332c9e4516a6370a0456e6182c3b5036720
+- name: github.com/mgutz/ansi
+  version: c286dcecd19ff979eeb73ea444e479b903f2cfcb
+- name: github.com/redBorder/rbforwarder
+  version: 1a8c4233571af3c375d6c5e5e24ab02a86c23247
+  subpackages:
+  - senders/httpsender
+- name: github.com/Shopify/sarama
+  version: c372abcbb917eb838df44dd6a0cfc3a43dba6fd2
+- name: github.com/Sirupsen/logrus
+  version: f3cfb454f4c209e6668c95216c4744b8fddb2356
+- name: github.com/x-cray/logrus-prefixed-formatter
+  version: 19bfe61502ba35a3235b4970c10b9366a0aa9b61
+- name: golang.org/x/sys
+  version: 7f918dd405547ecb864d14a8ecbbfe205b5f930f
+  subpackages:
+  - unix
+- name: gopkg.in/bsm/sarama-cluster.v2
+  version: 0cd44ad78b92bd308d568dad5611b995fdf556d3
+- name: gopkg.in/yaml.v2
+  version: a83829b6f1293c91addabc89d0571c246397bbf4
+devImports: []

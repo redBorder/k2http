@@ -1,0 +1,10 @@
+package: .
+import:
+- package: github.com/Shopify/sarama
+- package: github.com/Sirupsen/logrus
+- package: github.com/redBorder/rbforwarder
+  subpackages:
+  - senders/httpsender
+- package: github.com/x-cray/logrus-prefixed-formatter
+- package: gopkg.in/bsm/sarama-cluster.v2
+- package: gopkg.in/yaml.v2
