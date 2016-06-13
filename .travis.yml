@@ -2,18 +2,20 @@ sudo: required
 
 language: go
 
-go: 
+go:
   - 1.6.2
 
-services:
-  - docker
+notifications:
+  email:
+    on_success: never
+    on_failure: always
 
 install:
   - make get
   - make get_dev
-  - make
 
 script :
+  - make
   - make fmt
   - make vet
   - make test
