@@ -6,10 +6,10 @@ backend:
   showcounter: 5
 kafka:
   # begining: true
-  broker: "localhost:2181"
+  broker: "10.0.30.249:9092"
   consumergroup: "k2httpd"
   topics:
-    - prueba
+    - test
 http:
   url: "http://localhost:8080"
   batchsize: 100

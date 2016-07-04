@@ -7,8 +7,8 @@ import (
 
 	"github.com/Shopify/sarama"
 	"github.com/Sirupsen/logrus"
+	"github.com/bsm/sarama-cluster"
 	"github.com/redBorder/rbforwarder"
-	"gopkg.in/bsm/sarama-cluster.v2"
 )
 
 // KafkaConsumer get messages from multiple kafka topics
