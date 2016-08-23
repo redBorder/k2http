@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -13,10 +13,10 @@ import (
 
 // KafkaConsumer get messages from multiple kafka topics
 type KafkaConsumer struct {
-	backend  *rbforwarder.RBForwarder // The backend to send messages
-	consumer *cluster.Consumer
-	closed   bool
-	Config   KafkaConfig // Cofiguration after the parsing
+	forwarder *rbforwarder.RBForwarder // The backend to send messages
+	consumer  *cluster.Consumer
+	closed    bool
+	Config    KafkaConfig // Cofiguration after the parsing
 }
 
 // KafkaConfig stores the configuration for the Kafka source
@@ -29,45 +29,37 @@ type KafkaConfig struct {
 
 // Start starts reading messages from kafka and pushing them to the pipeline
 func (k *KafkaConsumer) Start() {
-	var err error
-
-	var offset uint64
 	var eventsReported uint64
 	var eventsSent uint64
+	var wg sync.WaitGroup
+	var err error
 
 	logger = Logger.WithFields(logrus.Fields{
 		"prefix": "k2http",
 	})
 
 	// Start processing reports
-	done := make(chan struct{})
+	wg.Add(1)
 	go func() {
-		for report := range k.backend.GetOrderedReports() {
-			message := report.Metadata["sarama_message"].(*sarama.ConsumerMessage)
+		for r := range k.forwarder.GetOrderedReports() {
+			report := r.(rbforwarder.Report)
+			message := report.Opaque.(*sarama.ConsumerMessage)
 
-			if offset != report.ID {
-				logger.Fatalf("Unexpected offset. Expected %d, found %d.",
-					offset, report.ID)
-			}
-
-			if report.StatusCode != 0 {
+			if report.Code != 0 {
 				logger.
-					WithField("ID", report.ID).
 					WithField("STATUS", report.Status).
 					WithField("OFFSET", message.Offset).
 					Errorf("REPORT")
 			}
 
 			k.consumer.MarkOffset(message, "")
-			offset++
 			eventsReported++
 		}
 
-		done <- struct{}{}
+		wg.Done()
 	}()
 
 	// Init consumer, consume errors & messages
-mainLoop:
 	for {
 		k.consumer, err = cluster.NewConsumer(
 			k.Config.brokers,
@@ -96,17 +88,12 @@ mainLoop:
 				break
 			}
 
-			msg, err := k.backend.TakeMessage()
-			if err != nil {
-				break mainLoop
+			opts := map[string]interface{}{
+				"http_endpoint": message.Topic,
+				"batch_group":   message.Topic,
 			}
 
-			msg.InputBuffer = bytes.NewBuffer(message.Value)
-			msg.Metadata["sarama_message"] = message
-			msg.Metadata["topic"] = message.Topic
-			if err := msg.Produce(); err != nil {
-				break mainLoop
-			}
+			k.forwarder.Produce(message.Value, opts, message)
 
 			eventsSent++
 		}
@@ -118,7 +105,7 @@ mainLoop:
 
 	logger.Info("Consumer terminated")
 
-	<-done
+	wg.Wait()
 	logger.Infof("TOTAL SENT MESSAGES: %d", eventsSent)
 	logger.Infof("TOTAL REPORTS: %d", eventsReported)
 
@@ -165,5 +152,6 @@ func (k *KafkaConsumer) ParseKafkaConfig(config map[string]interface{}) {
 	// Parse consumergroup
 	if config["consumergroup"] != nil {
 		k.Config.consumergroup = config["consumergroup"].(string)
+		k.Config.consumerGroupConfig.ClientID = config["consumergroup"].(string)
 	}
 }
