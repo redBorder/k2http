@@ -1,38 +1,32 @@
-hash: 3e1c4b6e16b8a508311edd0a9e1d98c88bc05c7920e99434518b19a91f39441f
-updated: 2016-07-04T13:31:35.959873809+02:00
+hash: cffe0c292cc820dd9586360c94e76f8ddad70da22e5ab78c2307ab9fdff6baa5
+updated: 2016-08-23T13:54:35.171543316+02:00
 imports:
+- name: github.com/asaskevich/govalidator
+  version: 593d64559f7600f29581a3ee42177f5dbded27a9
 - name: github.com/bsm/sarama-cluster
-  version: 0cd44ad78b92bd308d568dad5611b995fdf556d3
-- name: github.com/davecgh/go-spew
-  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
-  subpackages:
-  - spew
-- name: github.com/eapache/go-resiliency
-  version: b86b1ec0dd4209a588dc1285cdd471e73525c0b3
-  subpackages:
-  - breaker
-- name: github.com/eapache/queue
-  version: ded5959c0d4e360646dc9e9908cff48666781367
-- name: github.com/golang/snappy
-  version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
-- name: github.com/klauspost/crc32
-  version: 19b0b332c9e4516a6370a0456e6182c3b5036720
+  version: 6d37f561b2a131e011c0cecf8a4d3c96b1e0a940
 - name: github.com/mgutz/ansi
   version: c286dcecd19ff979eeb73ea444e479b903f2cfcb
+- name: github.com/oleiade/lane
+  version: 3053869314bb02cb983dc2205da8ea2abe46fa96
 - name: github.com/redBorder/rbforwarder
-  version: 1a8c4233571af3c375d6c5e5e24ab02a86c23247
+  version: 58350962242bfa5107946386b97f09c5c47dddd0
   subpackages:
   - senders/httpsender
+  - components/httpsender
+  - utils
 - name: github.com/Shopify/sarama
-  version: 38d579a708d2f87dd4e35342241048e361d1e66a
+  version: 9bb4a68d57ff6f623363aa172f0a8297aa289ba7
 - name: github.com/Sirupsen/logrus
-  version: f3cfb454f4c209e6668c95216c4744b8fddb2356
+  version: 4b6ea7319e214d98c938f12692336f7ca9348d6b
+- name: github.com/streamrail/concurrent-map
+  version: a200aeb76b7e41a480f7a67a49a17723f53b3a37
 - name: github.com/x-cray/logrus-prefixed-formatter
   version: 78e945f7d6bfe5a81ce6121d92d8118e44303e58
 - name: golang.org/x/sys
-  version: a408501be4d17ee978c04a618e7a1b22af058c0e
+  version: a646d33e2ee3172a661fc09bca23bb4889a41bc8
   subpackages:
   - unix
 - name: gopkg.in/yaml.v2
-  version: a83829b6f1293c91addabc89d0571c246397bbf4
-devImports: []
+  version: e4d366fc3c7938e2958e662b4258c7a89e1f0e3e
+testImports: []
