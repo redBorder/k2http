@@ -96,7 +96,6 @@ consumerLoop:
 		for {
 			select {
 			case <-k.closed:
-				logger.Info("Waiting for reports...")
 				break consumerLoop
 			case message := <-k.consumer.Messages():
 				if message == nil {
@@ -145,11 +144,12 @@ func (k *KafkaConsumer) Close() {
 	}()
 
 	k.closed <- struct{}{}
-
 	if err := k.consumer.Close(); err != nil {
 		logger.Println("Failed to close consumer: ", err)
 	} else {
 		logger.Info("Consumer terminated")
-		k.forwarder.Close()
 	}
+
+	<-time.After(5 * time.Second)
+	k.forwarder.Close()
 }
