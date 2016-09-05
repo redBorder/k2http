@@ -259,23 +259,15 @@ func loadKafkaConfig() KafkaConfig {
 	} else {
 		logger.Fatal("Invalid 'broker' option")
 	}
-	if topics, ok := kafkaConfig["topics"].([]string); ok {
+	if topics, ok := kafkaConfig["topics"].([]interface{}); ok {
 		for _, topic := range topics {
-			config.topics = append(config.topics, topic)
-			logger.WithFields(map[string]interface{}{
-				"topic": topic,
-			}).Info("Listening topic")
+			config.topics = append(config.topics, topic.(string))
 		}
 	}
 
 	config.consumerGroupConfig.Config.Consumer.Offsets.CommitInterval = 1 * time.Second
 	config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
-	config.consumerGroupConfig.Consumer.MaxProcessingTime = 5 * time.Second
-
-	logger.WithFields(map[string]interface{}{
-		"consumergroup": config.consumergroup,
-		"broker":        config.brokers,
-	}).Info("Kafka config")
+	// config.consumerGroupConfig.Consumer.MaxProcessingTime = 5 * time.Second
 
 	return config
 }
