@@ -10,7 +10,7 @@ bindir?=	$(prefix)/bin
 
 build:
 	@printf "$(MKL_YELLOW)Building $(BIN)$(MKL_CLR_RESET)\n"
-	go build -ldflags "-X main.githash=`git rev-parse HEAD` -X main.version=`git describe --tags --always`" -o $(BIN)
+	go build -ldflags "-X main.githash=`git rev-parse HEAD` -X main.version=`git describe --tags --always --dirty=-dev`" -o $(BIN)
 
 install: build
 	@printf "$(MKL_YELLOW)Install $(BIN) to $(bindir)$(MKL_CLR_RESET)\n"
