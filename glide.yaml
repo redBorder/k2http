@@ -1,14 +1,15 @@
 package: github.com/redBorder/k2http
 import:
 - package: github.com/Shopify/sarama
-  version: ~1.10.0
+  version: ^1.10.1
 - package: github.com/Sirupsen/logrus
-  version: ~0.10.0
+  version: ^0.10.0
 - package: github.com/bsm/sarama-cluster
-  version: ~2.1.1
+  version: ^2.1.1
 - package: github.com/redBorder/rbforwarder
-  version: 58350962242bfa5107946386b97f09c5c47dddd0
+  version: ^0.5.0
   subpackages:
-  - senders/httpsender
+  - components/batch
+  - components/httpsender
 - package: github.com/x-cray/logrus-prefixed-formatter
 - package: gopkg.in/yaml.v2
