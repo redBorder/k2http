@@ -1,23 +1,17 @@
 package main
 
 import (
-	"bytes"
-	"strings"
+	"os"
+	"os/signal"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/Sirupsen/logrus"
+	"github.com/bsm/sarama-cluster"
 	"github.com/redBorder/rbforwarder"
-	"gopkg.in/bsm/sarama-cluster.v2"
 )
-
-// KafkaConsumer get messages from multiple kafka topics
-type KafkaConsumer struct {
-	backend  *rbforwarder.RBForwarder // The backend to send messages
-	consumer *cluster.Consumer
-	closed   bool
-	Config   KafkaConfig // Cofiguration after the parsing
-}
 
 // KafkaConfig stores the configuration for the Kafka source
 type KafkaConfig struct {
@@ -25,49 +19,62 @@ type KafkaConfig struct {
 	brokers             []string // Brokers to connect
 	consumergroup       string   // ID for the consumer
 	consumerGroupConfig *cluster.Config
+	deflate             bool
+}
+
+// KafkaConsumer get messages from multiple kafka topics
+type KafkaConsumer struct {
+	forwarder *rbforwarder.RBForwarder // The backend to send messages
+	consumer  *cluster.Consumer
+	closed    chan struct{}
+	Config    KafkaConfig // Cofiguration after the parsing
+	wg        sync.WaitGroup
 }
 
 // Start starts reading messages from kafka and pushing them to the pipeline
 func (k *KafkaConsumer) Start() {
-	var err error
-
-	var offset uint64
 	var eventsReported uint64
 	var eventsSent uint64
+	var messages uint32
+	var err error
+
+	k.closed = make(chan struct{})
 
 	logger = Logger.WithFields(logrus.Fields{
 		"prefix": "k2http",
 	})
 
-	// Start processing reports
-	done := make(chan struct{})
 	go func() {
-		for report := range k.backend.GetOrderedReports() {
-			message := report.Metadata["sarama_message"].(*sarama.ConsumerMessage)
+		for {
+			<-time.After(5 * time.Second)
+			logger.Infof("Messages per second: %d", atomic.LoadUint32(&messages)/5)
+			atomic.StoreUint32(&messages, 0)
+		}
+	}()
 
-			if offset != report.ID {
-				logger.Fatalf("Unexpected offset. Expected %d, found %d.",
-					offset, report.ID)
-			}
+	// Start processing reports
+	k.wg.Add(1)
+	go func() {
+		for r := range k.forwarder.GetOrderedReports() {
+			report := r.(rbforwarder.Report)
+			message := report.Opaque.(*sarama.ConsumerMessage)
 
-			if report.StatusCode != 0 {
+			if report.Code != 0 {
 				logger.
-					WithField("ID", report.ID).
 					WithField("STATUS", report.Status).
 					WithField("OFFSET", message.Offset).
-					Errorf("REPORT")
+					Error("REPORT")
 			}
 
 			k.consumer.MarkOffset(message, "")
-			offset++
 			eventsReported++
 		}
 
-		done <- struct{}{}
+		k.wg.Done()
 	}()
 
 	// Init consumer, consume errors & messages
-mainLoop:
+consumerLoop:
 	for {
 		k.consumer, err = cluster.NewConsumer(
 			k.Config.brokers,
@@ -86,39 +93,40 @@ mainLoop:
 			WithField("topics", k.Config.topics).
 			Info("Started consumer")
 
-		// Start consuming messages
-		for message := range k.consumer.Messages() {
-			if message == nil {
-				k.Config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
-				if err := k.consumer.Close(); err != nil {
-					logger.Error("Failed to close consumer: ", err)
+		for {
+			select {
+			case <-k.closed:
+				break consumerLoop
+			case message := <-k.consumer.Messages():
+				if message == nil {
+					k.Config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
+					if err := k.consumer.Close(); err != nil {
+						logger.Error("Failed to close consumer: ", err)
+					}
+
+					break
 				}
-				break
+
+				opts := map[string]interface{}{
+					"http_endpoint": message.Topic,
+					"batch_group":   message.Topic,
+				}
+
+				if k.Config.deflate {
+					opts["http_headers"] = map[string]string{
+						"Content-Encoding": "deflate",
+					}
+				}
+
+				k.forwarder.Produce(message.Value, opts, message)
+
+				eventsSent++
+				atomic.AddUint32(&messages, 1)
 			}
-
-			msg, err := k.backend.TakeMessage()
-			if err != nil {
-				break mainLoop
-			}
-
-			msg.InputBuffer = bytes.NewBuffer(message.Value)
-			msg.Metadata["sarama_message"] = message
-			msg.Metadata["topic"] = message.Topic
-			if err := msg.Produce(); err != nil {
-				break mainLoop
-			}
-
-			eventsSent++
-		}
-
-		if k.closed {
-			break
 		}
 	}
 
-	logger.Info("Consumer terminated")
-
-	<-done
+	k.wg.Wait()
 	logger.Infof("TOTAL SENT MESSAGES: %d", eventsSent)
 	logger.Infof("TOTAL REPORTS: %d", eventsReported)
 
@@ -127,43 +135,21 @@ mainLoop:
 
 // Close closes the connection with Kafka
 func (k *KafkaConsumer) Close() {
-	k.closed = true
+	logger.Info("Terminating... Press ctrl+c again to force exit")
+	ctrlc := make(chan os.Signal, 1)
+	signal.Notify(ctrlc, os.Interrupt)
+	go func() {
+		<-ctrlc
+		logger.Fatal("Forced exit")
+	}()
+
+	k.closed <- struct{}{}
 	if err := k.consumer.Close(); err != nil {
 		logger.Println("Failed to close consumer: ", err)
-	}
-}
-
-// ParseKafkaConfig reads the configuration from the YAML config file and store it
-// on the instance
-func (k *KafkaConsumer) ParseKafkaConfig(config map[string]interface{}) {
-
-	// Create the config
-	k.Config.consumerGroupConfig = cluster.NewConfig()
-	k.Config.consumerGroupConfig.Config.Consumer.Offsets.CommitInterval = 1 * time.Second
-	k.Config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
-	k.Config.consumerGroupConfig.Consumer.MaxProcessingTime = 3 * time.Second
-
-	if *debug {
-		saramaLogger := Logger.WithField("prefix", "kafka-consumer")
-		sarama.Logger = saramaLogger
+	} else {
+		logger.Info("Consumer terminated")
 	}
 
-	// Parse the brokers addresses
-	if config["broker"] != nil {
-		k.Config.brokers = strings.Split(config["broker"].(string), ",")
-	}
-
-	// Parse topics
-	if config["topics"] != nil {
-		topics := config["topics"].([]interface{})
-
-		for _, topic := range topics {
-			k.Config.topics = append(k.Config.topics, topic.(string))
-		}
-	}
-
-	// Parse consumergroup
-	if config["consumergroup"] != nil {
-		k.Config.consumergroup = config["consumergroup"].(string)
-	}
+	<-time.After(5 * time.Second)
+	k.forwarder.Close()
 }
