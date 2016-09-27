@@ -84,3 +84,18 @@ http:
   url: "http://localhost:8888"    # Number of workers, one connection per worker
   insecure: false                 # Skip SSSL verification
 ```
+
+## Using with Docker
+
+You can use the application with Docker. First you need to compile as usual and then generate the docker image:
+
+```bash
+make
+docker build -t k2http-docker .
+```
+
+You can then use the app inside a docker container:
+
+```bash
+docker run --rm k2http-docker --version
+```
