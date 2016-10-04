@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/redBorder/k2http.svg?branch=master)](https://travis-ci.org/redBorder/k2http)
+[![Go Report Card](https://goreportcard.com/badge/github.com/redBorder/k2http)](https://goreportcard.com/report/github.com/redBorder/k2http)
 
 # K2HTTP2
 
