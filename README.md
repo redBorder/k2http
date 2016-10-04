@@ -6,7 +6,8 @@ package.
 
 ## Installing
 
-To install this application ensure you have **glide** installed.
+To install this application ensure you have the `GOPATH` environment variable
+set and **[glide](https://glide.sh/)** installed.
 
 ```bash
 curl https://glide.sh/get | sh
@@ -17,13 +18,12 @@ And then:
 1. Clone this repo and cd to the project
 
     ```bash
-    git clone git@gitlab.redborder.lan:core-developers/k2http2.git
-    cd k2http2
+    git clone https://github.com/redBorder/k2http.git && cd k2http
     ```
-2. Install dependencies
+2. Install dependencies and compile
 
     ```bash
-    glide update
+    make
     ```
 3. Install on desired directory
 
