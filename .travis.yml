@@ -1,0 +1,24 @@
+language: go
+
+sudo: false
+
+branches:
+  only:
+    - master
+    - develop
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+
+go:
+  - 1.6.3
+  - 1.7.1
+
+install:
+  - curl https://glide.sh/get | sh
+  - make get
+
+script:
+  - make
