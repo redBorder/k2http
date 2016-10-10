@@ -100,9 +100,9 @@ func main() {
 
 	// Initialize forwarder and components
 	f := rbforwarder.NewRBForwarder(loadForwarderConfig())
+	components = append(components, &limiter.Limiter{Config: loadLimiterConfig()})
 	components = append(components, &batcher.Batcher{Config: loadBatchConfig()})
 	components = append(components, &httpsender.HTTPSender{Config: loadHTTPConfig()})
-	components = append(components, &limiter.Limiter{Config: loadLimiterConfig()})
 	f.PushComponents(components)
 
 	// Initialize kafka
@@ -256,23 +256,24 @@ func loadLimiterConfig() limiter.Config {
 	}
 
 	config := limiter.Config{}
-	if MessageLimit, ok := limiterConfig["max_messages"].(uint64); ok {
-		config.MessageLimit = MessageLimit
+	if MessageLimit, ok := limiterConfig["max_messages"].(int); ok {
+		config.MessageLimit = uint64(MessageLimit)
 	} else {
 		config.MessageLimit = 0
 	}
-	if BytesLimit, ok := limiterConfig["max_bytes"].(uint64); ok {
+	if BytesLimit, ok := limiterConfig["max_bytes"].(int); ok {
 		if config.MessageLimit > 0 {
 			config.MessageLimit = 0
 			logger.Warning("Ignoring \"max_messages\" option")
 		}
-		config.BytesLimit = BytesLimit
+		config.BytesLimit = uint64(BytesLimit)
 	} else {
 		config.BytesLimit = 0
 	}
 
 	logger.WithFields(map[string]interface{}{
 		"max_messages": config.MessageLimit,
+		"max_bytes":    config.BytesLimit,
 	}).Info("Limiter config")
 
 	return config
