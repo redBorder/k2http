@@ -8,7 +8,9 @@ BIN=      k2http
 prefix?=  /usr/local
 bindir?=	$(prefix)/bin
 
-build: get
+all: vendor build
+
+build:
 	@printf "$(MKL_YELLOW)Building $(BIN)$(MKL_CLR_RESET)\n"
 	CGO_ENABLED=0 go build -ldflags "-X main.githash=`git rev-parse HEAD` -X main.version=`git describe --tags --always --dirty=-dev`" -o $(BIN)
 
