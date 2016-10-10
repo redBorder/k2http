@@ -35,6 +35,7 @@ import (
 	"github.com/redBorder/rbforwarder"
 	"github.com/redBorder/rbforwarder/components/batch"
 	"github.com/redBorder/rbforwarder/components/httpsender"
+	"github.com/redBorder/rbforwarder/components/limiter"
 	"github.com/x-cray/logrus-prefixed-formatter"
 )
 
@@ -99,12 +100,13 @@ func main() {
 	f := rbforwarder.NewRBForwarder(loadForwarderConfig())
 	components = append(components, &batcher.Batcher{Config: loadBatchConfig()})
 	components = append(components, &httpsender.HTTPSender{Config: loadHTTPConfig()})
+	components = append(components, &limiter.Limiter{Config: loadLimiterConfig()})
 	f.PushComponents(components)
 
 	// Initialize kafka
 	kafka := &KafkaConsumer{Config: loadKafkaConfig()}
 
-	// Set the forwarder on the kafka consumoer
+	// Set the forwarder on the kafka consumer
 	kafka.forwarder = f
 
 	// Wait for ctrl-c to close the consumer
@@ -241,6 +243,35 @@ func loadHTTPConfig() httpsender.Config {
 		"debug":   config.Debug,
 		"url":     config.URL,
 	}).Info("HTTP config")
+
+	return config
+}
+
+func loadLimiterConfig() limiter.Config {
+	limiterConfig, err := loadConfig(*configFilename, "limiter")
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	config := limiter.Config{}
+	if MessageLimit, ok := limiterConfig["max_messages"].(uint64); ok {
+		config.MessageLimit = MessageLimit
+	} else {
+		config.MessageLimit = 0
+	}
+	if BytesLimit, ok := limiterConfig["max_bytes"].(uint64); ok {
+		if config.MessageLimit > 0 {
+			config.MessageLimit = 0
+			logger.Warning("Ignoring \"max_messages\" option")
+		}
+		config.BytesLimit = BytesLimit
+	} else {
+		config.BytesLimit = 0
+	}
+
+	logger.WithFields(map[string]interface{}{
+		"max_messages": config.MessageLimit,
+	}).Info("Limiter config")
 
 	return config
 }
