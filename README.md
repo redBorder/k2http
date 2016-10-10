@@ -1,23 +1,32 @@
+[![Build Status](https://travis-ci.org/redBorder/k2http.svg?branch=master)](https://travis-ci.org/redBorder/k2http)
+[![Go Report Card](https://goreportcard.com/badge/github.com/redBorder/k2http)](https://goreportcard.com/report/github.com/redBorder/k2http)
+
 # K2HTTP2
 
-k2http is a application that forwards messages from kafka to an  HTTP
+k2http is a application that forwards messages from kafka 0.9+ to an HTTP
 endpoint using [rbforwarder](https://github.com/redBorder/rbforwarder)
-package as backend.
+package.
 
 ## Installing
 
-To install this application.
+To install this application ensure you have the `GOPATH` environment variable
+set and **[glide](https://glide.sh/)** installed.
+
+```bash
+curl https://glide.sh/get | sh
+```
+
+And then:
 
 1. Clone this repo and cd to the project
 
     ```bash
-    git clone git@gitlab.redborder.lan:core-developers/k2http2.git
-    cd k2http2
+    git clone https://github.com/redBorder/k2http.git && cd k2http
     ```
-2. Install dependencies
+2. Install dependencies and compile
 
     ```bash
-    make get
+    make
     ```
 3. Install on desired directory
 
@@ -29,11 +38,11 @@ To install this application.
 
 ```
 Usage of k2http:
-  -config string
+  --config string
         Config file
-  -debug
+  --debug
         Show debug info
-  -version
+  --version
         Print version info
 ```
 
@@ -46,33 +55,50 @@ k2http --config path/to/config/file
 ## Example config file
 
 ```yaml
-backend:
-  workers: 5              # Number of workers
-  queue: 1000             # Max internal queue size
-  retries: -1             # Number of retries on fail (-1 not limited)
-  backoff: 30             # Time to wait between retries in seconds             
-  max_messages: 6000      # Max messages per second
-  #max_bytes: 5242880     # Max bytes per second
-  showcounter: 60         # Time in secods to show message ratio
+pipeline:
+  queue: 1000                     # Max internal queue size
+  backoff: 10                     # Time to wait between retries in seconds             
+  retries: 3                      # Number of retries on fail (-1 not limited)
+
+limiter:
+  max_messages: 5000              # Max messages per second
+  # max_bytes: 5242880            # Max bytes per second
 
 kafka:
-  broker: "127.0.0.1:9092"  # Kafka brokers
-  consumergroup: "k2http"   # Consumer group ID   
-  begining: false           # Reset offset
-  topics:                   # Kafka topics to listen
-    - rb_nmsp
-    - rb_radius
-    - rb_flow
-    - rb_loc
-    - rb_monitor
-    - rb_state
-    - rb_social
+  broker: "localhost:9092"        # Kafka brokers
+  consumergroup: "k2http"         # Consumer group ID   
+  topics:                         # Kafka topics to listen
+  - rb_nmsp
+  - rb_radius
+  - rb_flow
+  - rb_loc
+  - rb_monitor
+  - rb_state
+  - rb_social
+
+batch:      
+  workers: 1                      # Number of workers
+  size: 1000                      # Max messages per batch
+  timeoutMillis: 100              # Max time to wait for send a batch
+  deflate: false                  # Use deflate to compress batches
 
 http:
-  url: "https://example.com:8080" # URL to the server
-  insecure: true                  # Skip SSSL verification
-  batchsize: 1000                 # Max messages per batch
-  batchtimeout: 100               # Max time to wait for send a batch
-  deflate: true                   # Use deflate
-  endpoint: topic                 # String to add to the URL as suffix
+  workers: 1
+  url: "http://localhost:8888"    # Number of workers, one connection per worker
+  insecure: false                 # Skip SSSL verification
+```
+
+## Using with Docker
+
+You can use the application with Docker. First you need to compile as usual and then generate the docker image:
+
+```bash
+make
+docker build -t k2http-docker .
+```
+
+You can then use the app inside a docker container:
+
+```bash
+docker run --rm k2http-docker --version
 ```

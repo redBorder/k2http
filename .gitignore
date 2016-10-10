@@ -5,3 +5,4 @@ k2http
 *.sublime-workspace
 *.a
 *.h
+vendor/
