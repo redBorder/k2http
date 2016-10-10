@@ -53,12 +53,14 @@ var logger *logrus.Entry
 var (
 	configFilename *string
 	debug          *bool
+	counter        *int
 	version        string
 )
 
 func init() {
 	configFilename = flag.String("config", "", "Config file")
 	debug = flag.Bool("debug", false, "Show debug info")
+	counter = flag.Int("counter", 0, "Display messages per second")
 	versionFlag := flag.Bool("version", false, "Print version info")
 
 	flag.Parse()
