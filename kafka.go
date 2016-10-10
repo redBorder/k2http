@@ -86,6 +86,7 @@ func (k *KafkaConsumer) Start() {
 
 			k.consumer.MarkOffset(message, "")
 			eventsReported++
+			atomic.AddUint32(&messages, 1)
 		}
 
 		k.wg.Done()
@@ -139,7 +140,6 @@ consumerLoop:
 				k.forwarder.Produce(message.Value, opts, message)
 
 				eventsSent++
-				atomic.AddUint32(&messages, 1)
 			}
 		}
 	}
