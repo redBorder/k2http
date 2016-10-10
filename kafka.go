@@ -64,7 +64,7 @@ func (k *KafkaConsumer) Start() {
 		go func() {
 			for {
 				<-time.After(time.Duration(*counter) * time.Second)
-				logger.Infof("Messages per second: %d", atomic.LoadUint32(&messages)/5)
+				logger.Infof("Messages per second: %d", atomic.LoadUint32(&messages)/uint32(*counter))
 				atomic.StoreUint32(&messages, 0)
 			}
 		}()
