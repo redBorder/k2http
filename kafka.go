@@ -60,13 +60,15 @@ func (k *KafkaConsumer) Start() {
 		"prefix": "k2http",
 	})
 
-	go func() {
-		for {
-			<-time.After(5 * time.Second)
-			logger.Infof("Messages per second: %d", atomic.LoadUint32(&messages)/5)
-			atomic.StoreUint32(&messages, 0)
-		}
-	}()
+	if *counter > 0 {
+		go func() {
+			for {
+				<-time.After(time.Duration(*counter) * time.Second)
+				logger.Infof("Messages per second: %d", atomic.LoadUint32(&messages)/5)
+				atomic.StoreUint32(&messages, 0)
+			}
+		}()
+	}
 
 	// Start processing reports
 	k.wg.Add(1)
