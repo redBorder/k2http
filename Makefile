@@ -4,6 +4,8 @@ MKL_YELLOW?=	\033[033m
 MKL_BLUE?=	\033[034m
 MKL_CLR_RESET?=	\033[0m
 
+VERSION?=	$(shell git describe --abbrev=6 --tags HEAD --always | sed 's/-/_/g')
+
 BIN=      k2http
 prefix?=  /usr/local
 bindir?=	$(prefix)/bin
@@ -11,8 +13,9 @@ bindir?=	$(prefix)/bin
 all: vendor build
 
 build:
-	@printf "$(MKL_YELLOW)Building $(BIN)$(MKL_CLR_RESET)\n"
-	CGO_ENABLED=0 go build -ldflags "-X main.githash=`git rev-parse HEAD` -X main.version=`git describe --tags --always --dirty=-dev`" -o $(BIN)
+	@printf "$(MKL_YELLOW)[BUILD]$(MKL_CLR_RESET)    Building project\n"
+	@go build -ldflags "-X main.version=`git describe --tags --always --dirty=-dev`" -o $(BIN) ./cmd
+	@printf "$(MKL_YELLOW)[BUILD]$(MKL_CLR_RESET)    $(BIN) created\n"
 
 get: vendor
 
@@ -42,8 +45,12 @@ ifndef GLIDE
 	$(error glide is not installed. Install it with "curl https://glide.sh/get | sh")
 endif
 	@printf "$(MKL_YELLOW)Installing deps$(MKL_CLR_RESET)\n"
-	@glide update
+	@glide install
+
 
 clean:
 	rm -f $(BIN) $(SNORT_CONTROL)
 	rm -rf vendor/
+
+rpm: clean	
+	$(MAKE) -C packaging/rpm

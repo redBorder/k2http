@@ -5,7 +5,7 @@ sudo: false
 branches:
   only:
     - master
-    - develop
+    - development
 
 notifications:
   email:
@@ -15,6 +15,9 @@ notifications:
 go:
   - 1.6.3
   - 1.7.1
+
+env:
+  - RDKAFKA_VERSION=0.9.4
 
 install:
   - go get -v github.com/Masterminds/glide

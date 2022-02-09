@@ -1,15 +1,28 @@
 package: github.com/redBorder/k2http
 import:
 - package: github.com/Shopify/sarama
-  version: ^1.10.1
+  version: =1.10.1
 - package: github.com/Sirupsen/logrus
   version: ^0.10.0
 - package: github.com/bsm/sarama-cluster
-  version: ^2.1.1
+  version: =2.1.1
 - package: github.com/redBorder/rbforwarder
-  version: ^0.5.0
+  version: =0.5.0
   subpackages:
   - components/batch
   - components/httpsender
 - package: github.com/x-cray/logrus-prefixed-formatter
+  version: ~0.3.2
 - package: gopkg.in/yaml.v2
+  version: =v2.0.0
+- package: github.com/golang/go
+  version: go1.17.6
+  subpackages:
+  - src/math/bits
+  vcs: git
+- package: github.com/pierrec/lz4
+  version: ^v4.1.10
+  subpackages:
+  - internal/lz4block
+  - internal/lz4errors
+  - internal/lz4stream
