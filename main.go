@@ -36,7 +36,7 @@ import (
 	"github.com/redBorder/rbforwarder/components/batch"
 	"github.com/redBorder/rbforwarder/components/httpsender"
 	"github.com/redBorder/rbforwarder/components/limiter"
-	"github.com/x-cray/logrus-prefixed-formatter"
+	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
 const (

@@ -13,10 +13,10 @@ bindir?=	$(prefix)/bin
 all: vendor build
 
 build:
-	@printf "$(MKL_YELLOW)[BUILD]$(MKL_CLR_RESET)    Building project\n"
-	@go build -ldflags "-X main.version=`git describe --tags --always --dirty=-dev`" -o $(BIN) ./cmd
+	@printf "$(MKL_YELLOW)Building $(BIN)$(MKL_CLR_RESET)\n"
+	@go build -ldflags "-X main.version=`git describe --tags --always --dirty=-dev`" -o $(BIN)
 	@printf "$(MKL_YELLOW)[BUILD]$(MKL_CLR_RESET)    $(BIN) created\n"
-
+	
 get: vendor
 
 install: build
