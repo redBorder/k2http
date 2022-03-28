@@ -16,16 +16,17 @@ import:
 - package: golang.org/x/term
   version: 03fcf44c2211dcd5eb77510b5f7c1fb02d6ded50
 - package: github.com/Shopify/sarama
-  version: ^1.10.1
+  version: d37c73f2b2bce85f7fa16b6a550d26c5372892ef
 - package: github.com/Sirupsen/logrus
-  version: ^0.10.0
+  version: 68cec9f21fbf3ea8d8f98c044bc6ce05f17b267a
 - package: github.com/bsm/sarama-cluster
   version: ^2.1.1
 - package: github.com/redBorder/rbforwarder
-  version: ^0.5.0
+  version: 2e7b0f0a42e76c55e2571d9cd9692737246adf87
   subpackages:
   - components/batch
   - components/httpsender
 - package: github.com/x-cray/logrus-prefixed-formatter
-  version: ~0.3.2
+  version: 9cd0cf058806896bf8ca66f9a957d36bd9e4ce0f
 - package: gopkg.in/yaml.v2
+  version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
