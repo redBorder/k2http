@@ -6,7 +6,7 @@ License: GNU AGPLv3
 URL: https://github.com/redBorder/k2http
 Source0: %{name}-%{version}.tar.gz
 
-BuildRequires: go = 1.6.3
+BuildRequires: go = 1.17.6
 BuildRequires: glide rsync gcc git
 BuildRequires: rsync mlocate pkgconfig
 BuildRequires: librd-devel = 0.1.0
