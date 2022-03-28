@@ -16,7 +16,7 @@ import:
 - package: golang.org/x/term
   version: 03fcf44c2211dcd5eb77510b5f7c1fb02d6ded50
 - package: github.com/Shopify/sarama
-  version: ^1.10.1
+  version: d37c73f2b2bce85f7fa16b6a550d26c5372892ef
 - package: github.com/Sirupsen/logrus
   version: 68cec9f21fbf3ea8d8f98c044bc6ce05f17b267a
 - package: github.com/bsm/sarama-cluster
