@@ -27,6 +27,7 @@ export PATH=${GOPATH}:${PATH}
 mkdir -p $GOPATH/src/github.com/redBorder/k2http
 rsync -az --exclude=packaging/ --exclude=resources/ --exclude=gopath/ ./ $GOPATH/src/github.com/redBorder/k2http
 cd $GOPATH/src/github.com/redBorder/k2http
+ls -lsa
 make
 
 %install
@@ -37,6 +38,7 @@ export PARENT_BUILD=${PWD}
 export GOPATH=${PWD}/gopath
 export PATH=${GOPATH}:${PATH}
 pushd $GOPATH/src/github.com/redBorder/k2http
+echo "Making make install.." 
 prefix=%{buildroot}/usr make install
 popd
 cp -f resources/files/config.yml.default %{buildroot}/etc/k2http/
