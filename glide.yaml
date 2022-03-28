@@ -21,7 +21,7 @@ import:
   - src/math/bits
   vcs: git
 - package: github.com/pierrec/lz4
-  version: ^v4.1.10
+  version: =v4.1.10
   subpackages:
   - internal/lz4block
   - internal/lz4errors
