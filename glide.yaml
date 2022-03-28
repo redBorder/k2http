@@ -1,7 +1,18 @@
 package: github.com/redBorder/k2http
 import:
-- package: github.com/Shopify/sarama
-  version: =1.10.1
+- package: github.com/mattn/go-isatty
+  version: 57fdcb988a5c543893cc61bce354a6e24ab70022
+  repo: https://github.com/mattn/go-isatty
+- package: github.com/capnm/sysinfo
+  version: 5909a53897f32d198d9c81e3417f6d25ecfd2229
+- package: golang.org/x/crypto
+  version: 5770296d904e90f15f38f77dfc2e43fdf5efc083
+  subpackages:
+  - ssh/terminal
+- package: golang.org/x/sys
+  version: 002cbb5f952456d0c50e0d2aff17ea5eca716979
+  subpackages:
+  - unix
 - package: github.com/Sirupsen/logrus
   version: ^0.10.0
 - package: github.com/bsm/sarama-cluster
@@ -15,11 +26,6 @@ import:
   version: ~0.3.2
 - package: gopkg.in/yaml.v2
   version: =v2.0.0
-- package: github.com/golang/go
-  version: go1.17.6
-  subpackages:
-  - src/math/bits
-  vcs: git
 - package: github.com/pierrec/lz4
   version: ^v4.1.10
   subpackages:
