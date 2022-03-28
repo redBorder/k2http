@@ -6,3 +6,6 @@ k2http
 *.a
 *.h
 vendor/
+
+pkgs
+SOURCES
