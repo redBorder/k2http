@@ -25,7 +25,7 @@ export GOPATH=${PWD}/gopath
 export PATH=${GOPATH}:${PATH}
 
 mkdir -p $GOPATH/src/github.com/redBorder/k2http
-rsync -az --exclude=packaging/ --exclude=resources/ --exclude=gopath/ --exclude=.git/ ./ $GOPATH/src/github.com/redBorder/k2http
+rsync -az --exclude=packaging/ --exclude=resources/ --exclude=gopath/ ./ $GOPATH/src/github.com/redBorder/k2http
 cd $GOPATH/src/github.com/redBorder/k2http
 make
 
