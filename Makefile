@@ -47,3 +47,6 @@ endif
 clean:
 	rm -f $(BIN) $(SNORT_CONTROL)
 	rm -rf vendor/
+	
+rpm: clean
+	$(MAKE) -C packaging/rpm
