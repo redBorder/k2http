@@ -1,0 +1,9 @@
+general:
+  zk_connect: '127.0.0.1:2181'
+  topics:
+    - rb_flow
+    - rb_monitor
+  httpThreadsNum: 20
+  maxQueueSize: 1000
+  uuid: '0'
+  insecure: true

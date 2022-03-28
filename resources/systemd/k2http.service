@@ -1,0 +1,11 @@
+[Unit]
+Description=send kafka messages to a Manager
+
+[Service]
+User=k2http
+Group=k2http
+ExecStart=/usr/bin/bin/k2http -config /opt/rb/etc/k2http/config.yml
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
