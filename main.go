@@ -36,7 +36,7 @@ import (
 	"github.com/redBorder/rbforwarder/components/batch"
 	"github.com/redBorder/rbforwarder/components/httpsender"
 	"github.com/redBorder/rbforwarder/components/limiter"
-	"github.com/x-cray/logrus-prefixed-formatter"
+	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
 const (
@@ -240,10 +240,15 @@ func loadHTTPConfig() httpsender.Config {
 		logger.Fatal("Invalid 'url' option")
 	}
 
+	if insecure, ok := httpConfig["insecure"].(bool); ok {
+		config.Insecure = insecure
+	}
+
 	logger.WithFields(map[string]interface{}{
 		"workers": config.Workers,
 		"debug":   config.Debug,
 		"url":     config.URL,
+		"insecure": config.Insecure,
 	}).Info("HTTP config")
 
 	return config

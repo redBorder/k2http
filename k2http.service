@@ -1,0 +1,11 @@
+[Unit]
+Description=K2HTTP daemon
+
+[Service]
+ExecStart=/usr/bin/k2http -config /etc/k2http/config.yml
+Restart=always
+User=k2http
+Group=k2http
+
+[Install]
+WantedBy=multi-user.target
