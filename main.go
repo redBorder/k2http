@@ -248,6 +248,7 @@ func loadHTTPConfig() httpsender.Config {
 		"workers": config.Workers,
 		"debug":   config.Debug,
 		"url":     config.URL,
+		"insecure": config.Insecure,
 	}).Info("HTTP config")
 
 	return config
