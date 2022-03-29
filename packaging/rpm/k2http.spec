@@ -8,7 +8,11 @@ Source0: %{name}-%{version}.tar.gz
 
 BuildRequires: go = 1.6.3
 BuildRequires: glide rsync gcc git
-BuildRequires:	rsync mlocate
+BuildRequires:	rsync mlocate pkgconfig
+BuildRequires: librd-devel = 0.1.0
+#BuildRequires: librdkafka-devel
+
+Requires: librd0 librdkafka1
 
 Summary: rpm used to install k2http in a redborder ng
 Group:   Development/Libraries/Go
