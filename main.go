@@ -240,7 +240,7 @@ func loadHTTPConfig() httpsender.Config {
 		logger.Fatal("Invalid 'url' option")
 	}
 
-	if insecure, ok := batchConfig["insecure"].(bool); ok {
+	if insecure, ok := httpConfig["insecure"].(bool); ok {
 		config.Insecure = insecure
 	}
 
