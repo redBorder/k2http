@@ -23,10 +23,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Shopify/sarama"
-	"github.com/Sirupsen/logrus"
-	"github.com/bsm/sarama-cluster"
+	"github.com/IBM/sarama"
 	"github.com/redBorder/rbforwarder"
+	"github.com/redBorder/sarama-cluster"
+	"github.com/sirupsen/logrus"
 )
 
 // KafkaConfig stores the configuration for the Kafka source

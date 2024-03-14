@@ -1,13 +1,13 @@
 package: github.com/redBorder/k2http
 import:
-- package: github.com/Shopify/sarama
+- package: github.com/IBM/sarama
   version: =1.10.1
-- package: github.com/Sirupsen/logrus
+- package: github.com/sirupsen/logrus
   version: ^0.10.0
-- package: github.com/bsm/sarama-cluster
+- package: github.com/redBorder/sarama-cluster
   version: =2.1.1
 - package: github.com/redBorder/rbforwarder
-  version: =0.5.0
+  version: =0.5.1
   subpackages:
   - components/batch
   - components/httpsender
