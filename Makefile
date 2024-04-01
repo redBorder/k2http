@@ -40,7 +40,6 @@ coverage:
 	@go tool cover -func coverage.out
 
 vendor:
-	@go mod init
 	@go mod tidy
 	@go mod vendor
 
