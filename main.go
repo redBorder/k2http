@@ -29,9 +29,9 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/Shopify/sarama"
-	"github.com/Sirupsen/logrus"
-	"github.com/bsm/sarama-cluster"
+	"github.com/IBM/sarama"
+	"github.com/sirupsen/logrus"
+	"github.com/redBorder/sarama-cluster"
 	"github.com/redBorder/rbforwarder"
 	"github.com/redBorder/rbforwarder/components/batch"
 	"github.com/redBorder/rbforwarder/components/httpsender"
