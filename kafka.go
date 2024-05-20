@@ -19,13 +19,14 @@ package main
 import (
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/redBorder/rbforwarder"
-	"github.com/redBorder/sarama-cluster"
+	cluster "github.com/redBorder/sarama-cluster"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,6 +44,7 @@ type KafkaConsumer struct {
 	forwarder *rbforwarder.RBForwarder // The backend to send messages
 	consumer  *cluster.Consumer
 	closed    chan struct{}
+	reset     chan struct{}
 	Config    KafkaConfig // Cofiguration after the parsing
 	wg        sync.WaitGroup
 }
@@ -55,6 +57,7 @@ func (k *KafkaConsumer) Start() {
 	var err error
 
 	k.closed = make(chan struct{})
+	k.reset = make(chan struct{})
 
 	logger = Logger.WithFields(logrus.Fields{
 		"prefix": "k2http",
@@ -101,6 +104,8 @@ consumerLoop:
 			k.Config.topics,
 			k.Config.consumerGroupConfig,
 		)
+		k.Config.consumerGroupConfig.Consumer.Return.Errors = true
+
 		if err != nil {
 			logger.Fatal("Failed to start consumer: ", err)
 			break
@@ -112,17 +117,34 @@ consumerLoop:
 			WithField("topics", k.Config.topics).
 			Info("Started consumer")
 
+		go func() {
+			for err := range k.consumer.Errors() {
+				if strings.Contains(err.Error(), "offset is outside the range") {
+					logger.Infof("Resetting offsets due to out of range error")
+					k.reset <- struct{}{}
+					return
+				}
+			}
+		}()
+
 		for {
 			select {
 			case <-k.closed:
 				break consumerLoop
+			case <-k.reset:
+				logger.Infof("Reset signal received, closing consumer to reset offsets")
+				if err := k.consumer.Close(); err != nil {
+					logger.Error("Failed to close consumer: ", err)
+				}
+				k.Config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
+				continue consumerLoop
 			case message := <-k.consumer.Messages():
 				if message == nil {
 					k.Config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
 					if err := k.consumer.Close(); err != nil {
 						logger.Error("Failed to close consumer: ", err)
 					}
-
+					logger.Error("Message is nill")
 					break
 				}
 
