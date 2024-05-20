@@ -64,7 +64,7 @@ exit 0
 /usr/lib/systemd/system/k2http.service
 
 %changelog
-* Tue Apr 02 2024 David Vanhoucke <dvanhoucke@redborder.com> - 1.1.6
+* Tue Apr 02 2024 David Vanhoucke <dvanhoucke@redborder.com> - 1.1.7
 - Dependencies changed, erased the building of librdkafka from git repo and no longer giving permissions to config.yml
 * Tue Feb 08 2022 Vicente Mesa <vimesa@redborder.com> - 1.0.0
 - first spec version
