@@ -320,8 +320,8 @@ func loadKafkaConfig() KafkaConfig {
 		}
 	}
 
-	config.consumerGroupConfig.Config.Consumer.Offsets.CommitInterval = 1 * time.Second
-	config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
+	config.consumerGroupConfig.Consumer.Offsets.AutoCommit.Enable = true
+	config.consumerGroupConfig.Version = sarama.V2_0_0_0
 	// config.consumerGroupConfig.Consumer.MaxProcessingTime = 5 * time.Second
 
 	return config
