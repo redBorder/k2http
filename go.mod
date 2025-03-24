@@ -1,6 +1,6 @@
 module k2http
 
-go 1.22.9
+go 1.24.1
 
 toolchain go1.24.1
 
@@ -44,7 +44,7 @@ require (
 	github.com/streamrail/concurrent-map v0.0.0-20160823150647-8bf1e9bacbf6 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/net v0.39.0 // indirect
+	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/term v0.30.0 // indirect
 )
