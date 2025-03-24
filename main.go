@@ -25,7 +25,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
-
+  "time"
 	"gopkg.in/yaml.v2"
 
 	"github.com/IBM/sarama"
@@ -321,7 +321,8 @@ func loadKafkaConfig() KafkaConfig {
 
 	config.consumerGroupConfig.Consumer.Offsets.AutoCommit.Enable = true
 	config.consumerGroupConfig.Version = sarama.V3_5_0_0
-	// config.consumerGroupConfig.Consumer.MaxProcessingTime = 5 * time.Second
+	config.consumerGroupConfig.Consumer.Offsets.AutoCommit.Interval = 1 * time.Second
+  // config.consumerGroupConfig.Consumer.MaxProcessingTime = 5 * time.Second
 
 	return config
 }
