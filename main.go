@@ -30,12 +30,12 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/IBM/sarama"
-	"github.com/sirupsen/logrus"
-	"github.com/redBorder/sarama-cluster"
 	"github.com/redBorder/rbforwarder"
 	"github.com/redBorder/rbforwarder/components/batch"
 	"github.com/redBorder/rbforwarder/components/httpsender"
 	"github.com/redBorder/rbforwarder/components/limiter"
+	"github.com/redBorder/sarama-cluster"
+	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
@@ -245,9 +245,9 @@ func loadHTTPConfig() httpsender.Config {
 	}
 
 	logger.WithFields(map[string]interface{}{
-		"workers": config.Workers,
-		"debug":   config.Debug,
-		"url":     config.URL,
+		"workers":  config.Workers,
+		"debug":    config.Debug,
+		"url":      config.URL,
 		"insecure": config.Insecure,
 	}).Info("HTTP config")
 
@@ -320,8 +320,9 @@ func loadKafkaConfig() KafkaConfig {
 		}
 	}
 
-	config.consumerGroupConfig.Config.Consumer.Offsets.CommitInterval = 1 * time.Second
-	config.consumerGroupConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
+	config.consumerGroupConfig.Consumer.Offsets.AutoCommit.Enable = true
+	config.consumerGroupConfig.Version = sarama.V3_5_0_0
+	config.consumerGroupConfig.Consumer.Offsets.CommitInterval = time.Second
 	// config.consumerGroupConfig.Consumer.MaxProcessingTime = 5 * time.Second
 
 	return config
